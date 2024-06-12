@@ -1,0 +1,31 @@
+services:
+  database:
+    image: mysql:8.3
+    container_name: database
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - ./data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+
+  client:
+    build:
+      context: ./client
+    container_name: client
+    ports:
+      - "8080:80"
+    depends_on:
+      - database
+    volumes:
+      - ./client:/var/www/html
+    environment:
+      DB_HOST: database
+      DB_USER: ${MYSQL_USER}
+      DB_PASS: ${MYSQL_PASSWORD}
+      DB_DATABASE: ${MYSQL_DATABASE}
+      APP_ENV: ${APP_ENV}
